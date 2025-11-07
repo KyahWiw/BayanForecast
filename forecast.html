@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="7-Day Weather Forecast - BayanForecast Extended weather predictions for the Philippines">
+    <meta name="keywords" content="weather forecast, 7-day forecast, Philippines, weather prediction">
+    <title>7-Day Forecast - BayanForecast</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-cloud-sun"></i>
+                    <h1>BayanForecast</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="current-weather.html">Current Weather</a></li>
+                    <li><a href="typhoon-tracker.html">Typhoon Tracker</a></li>
+                    <li><a href="forecast.html" class="active">Forecast</a></li>
+                    <li><a href="index.html#alerts">Alerts</a></li>
+                </ul>
+            </nav>
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <h1><i class="fas fa-cloud-rain"></i> 7-Day Weather Forecast</h1>
+                <p>Extended weather predictions and detailed daily forecasts</p>
+                <div class="search-bar">
+                    <input type="text" id="locationSearch" placeholder="Enter city or province...">
+                    <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                    <button id="locationBtn" class="location-btn" title="Use my current location">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                </div>
+                <div class="location-status" id="locationStatus"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Permission Modal -->
+    <div id="locationPermissionModal" class="location-permission-modal hidden">
+        <div class="location-permission-overlay"></div>
+        <div class="location-permission-dialog">
+            <div class="location-permission-header">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Know Your Location</h3>
+                <p>BayanForecast would like to access your location to provide personalized weather information.</p>
+            </div>
+            <div class="location-permission-options">
+                <button class="location-option-btn" id="allowAlwaysBtn">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="option-content">
+                        <strong>Allow while visiting the page</strong>
+                        <span>Automatically use your location on this page</span>
+                    </div>
+                </button>
+                <button class="location-option-btn" id="allowOnceBtn">
+                    <i class="fas fa-clock"></i>
+                    <div class="option-content">
+                        <strong>Allow this time</strong>
+                        <span>Use your location just for this session</span>
+                    </div>
+                </button>
+                <button class="location-option-btn" id="neverAllowBtn">
+                    <i class="fas fa-times-circle"></i>
+                    <div class="option-content">
+                        <strong>Never allow</strong>
+                        <span>Don't ask for location access</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast Section -->
+    <section class="section forecast">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-calendar-week"></i> Extended Forecast
+            </h2>
+            <div class="forecast-grid" id="forecastGrid">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading forecast data...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-cloud-sun"></i> About BayanForecast</h4>
+                    <p>BayanForecast is a real-time weather monitoring and tropical storm tracking system designed to keep Filipinos informed about weather conditions and potential typhoons.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li><a href="current-weather.html">Current Weather</a></li>
+                        <li><a href="typhoon-tracker.html">Typhoon Tracking</a></li>
+                        <li><a href="forecast.html">7-Day Forecast</a></li>
+                        <li><a href="index.html#alerts">Weather Alerts</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">PAGASA</a></li>
+                        <li><a href="#">NDRRMC</a></li>
+                        <li><a href="#">Weather Tips</a></li>
+                        <li><a href="#">Safety Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact & Support</h4>
+                    <ul>
+                        <li><a href="#">Email Support</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Report Issue</a></li>
+                        <li><a href="#">Follow Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BayanForecast. All rights reserved. | Data updated every 10 minutes</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
+

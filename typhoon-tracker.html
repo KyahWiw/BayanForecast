@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Typhoon Tracker - Real-time tropical storm tracking with interactive map for the Philippines">
+    <meta name="keywords" content="typhoon, tropical storm, tracker, Philippines, hurricane, cyclone">
+    <title>Typhoon Tracker - BayanForecast</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-cloud-sun"></i>
+                    <h1>BayanForecast</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="current-weather.html">Current Weather</a></li>
+                    <li><a href="typhoon-tracker.html" class="active">Typhoon Tracker</a></li>
+                    <li><a href="forecast.html">Forecast</a></li>
+                    <li><a href="index.html#alerts">Alerts</a></li>
+                </ul>
+            </nav>
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <h1><i class="fas fa-hurricane"></i> Typhoon Tracker</h1>
+                <p>Real-time monitoring of active tropical storms and typhoons in the Asia-Pacific region</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Typhoon Tracker Section -->
+    <section class="section typhoon-tracker">
+        <div class="container">
+            <div class="typhoon-status">
+                <div class="status-indicator" id="typhoonStatus">
+                    <div class="status-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>System Status</h3>
+                        <p id="statusMessage">Checking for active tropical storms...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Typhoon Map -->
+            <div class="typhoon-map-container">
+                <div class="map-header">
+                    <h3><i class="fas fa-map-marked-alt"></i> Real-Time Typhoon Map</h3>
+                    <div class="map-controls">
+                        <div class="map-layer-controls">
+                            <button class="map-control-btn active" id="standardMapBtn" title="Standard Map" data-layer="standard">
+                                <i class="fas fa-map"></i> Standard
+                            </button>
+                            <button class="map-control-btn" id="satelliteMapBtn" title="Satellite Imagery" data-layer="satellite">
+                                <i class="fas fa-satellite"></i> Satellite
+                            </button>
+                            <button class="map-control-btn" id="cloudMapBtn" title="Cloud Imagery" data-layer="cloud">
+                                <i class="fas fa-cloud"></i> Clouds
+                            </button>
+                        </div>
+                        <div class="map-action-controls">
+                            <button class="map-control-btn" id="refreshMapBtn" title="Refresh Map">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="map-control-btn" id="centerMapBtn" title="Center on Philippines">
+                                <i class="fas fa-crosshairs"></i> Center
+                            </button>
+                            <button class="map-control-btn" id="toggleTrackBtn" title="Toggle Wind Track">
+                                <i class="fas fa-route"></i> Track
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="typhoonMap" class="typhoon-map"></div>
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <span class="legend-marker critical"></span>
+                        <span>Active Typhoon</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker warning"></span>
+                        <span>Monitored Storm</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker info"></span>
+                        <span>Weather Disturbance</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typhoon-list" id="typhoonList">
+                <!-- Typhoon data will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-cloud-sun"></i> About BayanForecast</h4>
+                    <p>BayanForecast is a real-time weather monitoring and tropical storm tracking system designed to keep Filipinos informed about weather conditions and potential typhoons.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li><a href="current-weather.html">Current Weather</a></li>
+                        <li><a href="typhoon-tracker.html">Typhoon Tracking</a></li>
+                        <li><a href="forecast.html">7-Day Forecast</a></li>
+                        <li><a href="index.html#alerts">Weather Alerts</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">PAGASA</a></li>
+                        <li><a href="#">NDRRMC</a></li>
+                        <li><a href="#">Weather Tips</a></li>
+                        <li><a href="#">Safety Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact & Support</h4>
+                    <ul>
+                        <li><a href="#">Email Support</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Report Issue</a></li>
+                        <li><a href="#">Follow Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BayanForecast. All rights reserved. | Data updated every 10 minutes</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS for Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet MarkerCluster JS -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <!-- Canvas for wind field visualization -->
+    <script src="https://unpkg.com/leaflet-canvas-markers@0.2.0/dist/leaflet.canvas-markers.js"></script>
+    <script src="typhoon-map.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
+
