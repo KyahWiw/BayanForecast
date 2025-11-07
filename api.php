@@ -20,14 +20,14 @@ require_once 'config.php';
 
 // Load API classes
 require_once 'api/OpenWeatherMapAPI.php';
-if ($WINDY_API_ENABLED && !empty($WINDY_API_KEY) && $WINDY_API_KEY !== 'YOUR_WINDY_API_KEY_HERE') {
-    require_once 'api/WindyAPI.php';
-}
 if ($NOAA_API_ENABLED) {
     require_once 'api/NOAAWeatherAPI.php';
 }
 if ($JMA_API_ENABLED) {
     require_once 'api/JMAWeatherAPI.php';
+}
+if ($OPENMETEO_API_ENABLED) {
+    require_once 'api/OpenMeteoAPI.php';
 }
 
 // Get request parameters
@@ -51,6 +51,9 @@ try {
         case 'alerts':
             getAlertsData($location);
             break;
+        case 'config':
+            getConfigData();
+            break;
         default:
             sendError('Invalid request');
     }
@@ -64,25 +67,27 @@ try {
 // ===========================
 function getWeatherData($location) {
     global $OPENWEATHER_API_KEY, $OPENWEATHER_API_ENABLED;
-    global $WINDY_API_KEY, $WINDY_API_ENABLED;
+    global $OPENMETEO_API_ENABLED;
     
-    // Try Windy API first (better cloud data and detailed forecasts)
-    if ($WINDY_API_ENABLED && !empty($WINDY_API_KEY) && $WINDY_API_KEY !== 'YOUR_WINDY_API_KEY_HERE') {
+    // Try Open-Meteo API first (free, no API key required, excellent data)
+    if ($OPENMETEO_API_ENABLED) {
         try {
             $coords = parseLocation($location);
             if ($coords) {
-                $windyApi = new WindyAPI($WINDY_API_KEY);
-                $weatherData = $windyApi->getCurrentWeather($coords['lat'], $coords['lon']);
-                sendResponse($weatherData);
-                return;
+                $openMeteoApi = new OpenMeteoAPI();
+                $weatherData = $openMeteoApi->getCurrentWeather($coords['lat'], $coords['lon'], 'Asia/Manila');
+                if ($weatherData) {
+                    sendResponse($weatherData);
+                    return;
+                }
             }
         } catch (Exception $e) {
-            error_log("Windy API Error: " . $e->getMessage());
-            // Fall through to OpenWeatherMap
+            error_log("Open-Meteo API Error: " . $e->getMessage());
+            // Fall through to other APIs
         }
     }
     
-    // Try OpenWeatherMap API as fallback
+    // Try OpenWeatherMap API
     if ($OPENWEATHER_API_ENABLED && !empty($OPENWEATHER_API_KEY) && $OPENWEATHER_API_KEY !== 'YOUR_OPENWEATHER_API_KEY_HERE') {
         try {
             $api = new OpenWeatherMapAPI($OPENWEATHER_API_KEY);
@@ -158,25 +163,27 @@ function getTyphoonData() {
 // ===========================
 function getForecastData($location) {
     global $OPENWEATHER_API_KEY, $OPENWEATHER_API_ENABLED;
-    global $WINDY_API_KEY, $WINDY_API_ENABLED;
+    global $OPENMETEO_API_ENABLED;
     
-    // Try Windy API first (more detailed forecasts)
-    if ($WINDY_API_ENABLED && !empty($WINDY_API_KEY) && $WINDY_API_KEY !== 'YOUR_WINDY_API_KEY_HERE') {
+    // Try Open-Meteo API first (free, up to 16 days forecast, excellent data)
+    if ($OPENMETEO_API_ENABLED) {
         try {
             $coords = parseLocation($location);
             if ($coords) {
-                $windyApi = new WindyAPI($WINDY_API_KEY);
-                $forecastData = $windyApi->getForecast($coords['lat'], $coords['lon']);
-                sendResponse($forecastData);
-                return;
+                $openMeteoApi = new OpenMeteoAPI();
+                $forecastData = $openMeteoApi->getForecast($coords['lat'], $coords['lon'], 'Asia/Manila', 7);
+                if ($forecastData) {
+                    sendResponse($forecastData);
+                    return;
+                }
             }
         } catch (Exception $e) {
-            error_log("Windy Forecast API Error: " . $e->getMessage());
-            // Fall through to OpenWeatherMap
+            error_log("Open-Meteo Forecast API Error: " . $e->getMessage());
+            // Fall through to other APIs
         }
     }
     
-    // Try OpenWeatherMap API as fallback
+    // Try OpenWeatherMap API
     if ($OPENWEATHER_API_ENABLED && !empty($OPENWEATHER_API_KEY) && $OPENWEATHER_API_KEY !== 'YOUR_OPENWEATHER_API_KEY_HERE') {
         try {
             $api = new OpenWeatherMapAPI($OPENWEATHER_API_KEY);
@@ -353,5 +360,24 @@ function parseLocation($location) {
     }
     
     return null;
+}
+
+// ===========================
+// Config Data Function
+// Returns configuration data for frontend (API keys, etc.)
+// ===========================
+function getConfigData() {
+    global $OPENWEATHER_API_KEY, $OPENWEATHER_API_ENABLED;
+    
+    // OpenWeatherMap API key for map layers
+    $owmEnabled = $OPENWEATHER_API_ENABLED && !empty($OPENWEATHER_API_KEY) && $OPENWEATHER_API_KEY !== 'YOUR_OPENWEATHER_API_KEY_HERE';
+    $owmApiKey = $owmEnabled ? $OPENWEATHER_API_KEY : null;
+    
+    $config = [
+        'openweatherEnabled' => $owmEnabled,
+        'openweatherApiKey' => $owmApiKey
+    ];
+    
+    sendResponse($config);
 }
 ?>

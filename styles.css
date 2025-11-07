@@ -80,6 +80,33 @@ body.dark-theme {
     justify-content: space-between;
     padding: 20px 40px;
     gap: 40px;
+    position: relative;
+}
+
+.offline-indicator {
+    position: absolute;
+    top: 10px;
+    right: 40px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--success-color);
+    color: white;
+    box-shadow: var(--shadow-sm);
+    z-index: 1001;
+    transition: var(--transition);
+}
+
+.offline-indicator.offline {
+    background: var(--warning-color);
+}
+
+.offline-indicator i {
+    font-size: 14px;
 }
 
 .logo {
@@ -1101,6 +1128,10 @@ body.dark-theme .typhoon-value {
     border-bottom: 1px solid var(--border-color);
 }
 
+.typhoon-map-container {
+    position: relative;
+}
+
 .map-header h3 {
     margin: 0;
     font-size: 20px;
@@ -1116,44 +1147,91 @@ body.dark-theme .typhoon-value {
 }
 
 .map-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1000;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 8px;
+    box-shadow: var(--shadow-lg);
 }
 
 .map-layer-controls {
     display: flex;
-    gap: 8px;
-    border-right: 1px solid var(--border-color);
-    padding-right: 10px;
-    margin-right: 10px;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .map-action-controls {
     display: flex;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 8px;
+    margin-top: 4px;
 }
 
 .map-control-btn {
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    padding: 8px 16px;
+    padding: 10px;
     border-radius: var(--radius-md);
-    cursor: pointer;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1001 !important;
     transition: var(--transition);
     color: var(--text-dark);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 0;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    white-space: nowrap;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .map-control-btn:hover {
     background: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.map-control-btn:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--text-dark);
+    color: white;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: var(--shadow-md);
+    z-index: 1002;
+    pointer-events: none;
+}
+
+.map-control-btn:hover::before {
+    content: '';
+    position: absolute;
+    left: 44px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: var(--text-dark);
+    z-index: 1003;
+    pointer-events: none;
 }
 
 .map-control-btn.active {
@@ -1163,10 +1241,20 @@ body.dark-theme .typhoon-value {
 }
 
 .map-control-btn i {
-    font-size: 12px;
+    font-size: 16px;
+    line-height: 1;
 }
 
-.typhoon-map {
+.map-control-separator {
+    width: 100%;
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+    align-self: stretch;
+}
+
+.typhoon-map,
+#windy {
     width: 100%;
     height: 700px;
     position: relative;
@@ -1176,6 +1264,23 @@ body.dark-theme .typhoon-value {
 
 body.dark-theme .typhoon-map {
     filter: brightness(0.8) contrast(1.2);
+}
+
+/* Typhoon Track Styles */
+.typhoon-track-arrow {
+    background: transparent !important;
+    border: none !important;
+}
+
+.typhoon-forecast-popup {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.typhoon-forecast-popup strong {
+    color: var(--danger-color);
+    display: block;
+    margin-bottom: 4px;
 }
 
 .map-legend {
@@ -1305,6 +1410,213 @@ body.dark-theme .typhoon-map {
     border-left-width: 6px;
 }
 
+.typhoon-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+/* ===========================
+   PAGASA Wind Signal Badges
+   =========================== */
+.pagasa-signal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.pagasa-signal-badge i {
+    font-size: 10px;
+}
+
+.pagasa-signal-badge.signal-1 {
+    background: #fef3c7;
+    color: #92400e;
+    border: 2px solid #fbbf24;
+}
+
+.pagasa-signal-badge.signal-2 {
+    background: #fed7aa;
+    color: #9a3412;
+    border: 2px solid #f59e0b;
+}
+
+.pagasa-signal-badge.signal-3 {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #ef4444;
+}
+
+.pagasa-signal-badge.signal-4 {
+    background: #fecaca;
+    color: #7f1d1d;
+    border: 2px solid #dc2626;
+}
+
+.pagasa-signal-badge.signal-5 {
+    background: #fca5a5;
+    color: #7f1d1d;
+    border: 2px solid #991b1b;
+    animation: pulse-signal-5 2s infinite;
+}
+
+@keyframes pulse-signal-5 {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(153, 27, 27, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(153, 27, 27, 0);
+    }
+}
+
+.popup-detail.pagasa-signal {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.typhoon-popup .pagasa-signal-badge {
+    font-size: 14px;
+    padding: 8px 14px;
+}
+
+.typhoon-value.signal-1 {
+    color: #92400e;
+    font-weight: 700;
+}
+
+.typhoon-value.signal-2 {
+    color: #9a3412;
+    font-weight: 700;
+}
+
+.typhoon-value.signal-3 {
+    color: #991b1b;
+    font-weight: 700;
+}
+
+.typhoon-value.signal-4 {
+    color: #7f1d1d;
+    font-weight: 700;
+}
+
+.typhoon-value.signal-5 {
+    color: #7f1d1d;
+    font-weight: 700;
+    animation: pulse-text 2s infinite;
+}
+
+@keyframes pulse-text {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ===========================
+   City Temperature Markers
+   =========================== */
+.city-temperature-marker {
+    background: transparent;
+    border: none;
+}
+
+.city-temp-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.city-temp-box {
+    background: rgba(31, 41, 55, 0.85);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 2px;
+    min-width: 50px;
+}
+
+.city-name-label {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1f2937;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.city-name-label.temp-high {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+.city-name-label.temp-normal {
+    background: rgba(249, 115, 22, 0.9);
+    color: white;
+}
+
+/* ===========================
+   Precipitation Legend
+   =========================== */
+.precipitation-legend {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    font-size: 12px;
+    min-width: 200px;
+}
+
+.legend-header {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+    font-size: 13px;
+}
+
+.legend-gradient {
+    display: flex;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.legend-color {
+    flex: 1;
+    height: 100%;
+}
+
+.legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-medium);
+    font-weight: 600;
+}
+
 /* ===========================
    Advanced Typhoon Map Styles
    =========================== */
@@ -1384,24 +1696,41 @@ body.dark-theme .typhoon-map {
 }
 
 @media (max-width: 768px) {
-    .typhoon-map {
+    .typhoon-map,
+    #windy {
         height: 400px;
     }
     
     .map-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
+        padding: 15px 20px;
     }
     
     .map-controls {
-        width: 100%;
-        justify-content: space-between;
+        top: 10px;
+        right: 10px;
+        padding: 6px;
     }
     
     .map-control-btn {
-        flex: 1;
-        justify-content: center;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+        padding: 8px;
+    }
+    
+    .map-control-btn i {
+        font-size: 14px;
+    }
+    
+    .map-control-btn:hover::after {
+        left: 42px;
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+    
+    .map-control-btn:hover::before {
+        left: 36px;
     }
     
     .map-legend {
@@ -1801,9 +2130,32 @@ body.dark-theme .footer {
     }
 }
 
+@media (max-width: 768px) {
+    .typhoon-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .pagasa-signal-badge {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+}
+
 @media (max-width: 480px) {
     .logo h1 {
         font-size: 20px;
+    }
+    
+    .typhoon-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pagasa-signal-badge {
+        font-size: 10px;
+        padding: 4px 8px;
     }
     
     .hero-content h2 {

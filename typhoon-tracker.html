@@ -7,13 +7,10 @@
     <meta name="description" content="Typhoon Tracker - Real-time tropical storm tracking with interactive map for the Philippines">
     <meta name="keywords" content="typhoon, tropical storm, tracker, Philippines, hurricane, cyclone">
     <title>Typhoon Tracker - BayanForecast</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Leaflet CSS for Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Leaflet MarkerCluster CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <!-- Leaflet CSS is included below for OpenWeatherMap map -->
 </head>
 
 <body>
@@ -74,30 +71,52 @@
                     <h3><i class="fas fa-map-marked-alt"></i> Real-Time Typhoon Map</h3>
                     <div class="map-controls">
                         <div class="map-layer-controls">
-                            <button class="map-control-btn active" id="standardMapBtn" title="Standard Map" data-layer="standard">
-                                <i class="fas fa-map"></i> Standard
+                            <button class="map-control-btn active" id="cloudsMapBtn" title="Clouds Layer" data-layer="clouds">
+                                <i class="fas fa-cloud"></i>
                             </button>
-                            <button class="map-control-btn" id="satelliteMapBtn" title="Satellite Imagery" data-layer="satellite">
-                                <i class="fas fa-satellite"></i> Satellite
+                            <button class="map-control-btn" id="precipitationMapBtn" title="Precipitation Layer" data-layer="precipitation">
+                                <i class="fas fa-cloud-rain"></i>
                             </button>
-                            <button class="map-control-btn" id="cloudMapBtn" title="Cloud Imagery" data-layer="cloud">
-                                <i class="fas fa-cloud"></i> Clouds
+                            <button class="map-control-btn" id="globalPrecipitationMapBtn" title="Global Precipitation" data-layer="globalPrecipitation">
+                                <i class="fas fa-globe"></i>
+                            </button>
+                            <button class="map-control-btn" id="windMapBtn" title="Wind Layer" data-layer="wind">
+                                <i class="fas fa-wind"></i>
+                            </button>
+                            <button class="map-control-btn" id="tempMapBtn" title="Temperature Layer" data-layer="temp">
+                                <i class="fas fa-thermometer-half"></i>
+                            </button>
+                            <button class="map-control-btn" id="pressureMapBtn" title="Pressure Layer" data-layer="pressure">
+                                <i class="fas fa-compress-arrows-alt"></i>
+                            </button>
+                            <div class="map-control-separator"></div>
+                            <button class="map-control-btn" id="himawari8MapBtn" title="Himawari-8 Satellite (JMA/NOAA/CIRA)" data-layer="himawari8">
+                                <i class="fas fa-satellite"></i>
+                            </button>
+                            <button class="map-control-btn" id="himawari8VisibleMapBtn" title="Himawari-8 Visible" data-layer="himawari8Visible">
+                                <i class="fas fa-satellite-dish"></i>
+                            </button>
+                            <button class="map-control-btn" id="himawari8InfraredMapBtn" title="Himawari-8 Infrared" data-layer="himawari8Infrared">
+                                <i class="fas fa-satellite"></i>
                             </button>
                         </div>
                         <div class="map-action-controls">
                             <button class="map-control-btn" id="refreshMapBtn" title="Refresh Map">
-                                <i class="fas fa-sync-alt"></i> Refresh
+                                <i class="fas fa-sync-alt"></i>
                             </button>
                             <button class="map-control-btn" id="centerMapBtn" title="Center on Philippines">
-                                <i class="fas fa-crosshairs"></i> Center
+                                <i class="fas fa-crosshairs"></i>
                             </button>
                             <button class="map-control-btn" id="toggleTrackBtn" title="Toggle Wind Track">
-                                <i class="fas fa-route"></i> Track
+                                <i class="fas fa-route"></i>
+                            </button>
+                            <button class="map-control-btn active" id="toggleCitiesBtn" title="Toggle Cities">
+                                <i class="fas fa-city"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-                <div id="typhoonMap" class="typhoon-map"></div>
+                <div id="windy" class="typhoon-map"></div>
                 <div class="map-legend">
                     <div class="legend-item">
                         <span class="legend-marker critical"></span>
@@ -162,15 +181,60 @@
         </div>
     </footer>
 
-    <!-- Leaflet JS for Map -->
+    <!-- Leaflet for maps -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Leaflet MarkerCluster JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet MarkerCluster for grouping markers -->
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <!-- Canvas for wind field visualization -->
-    <script src="https://unpkg.com/leaflet-canvas-markers@0.2.0/dist/leaflet.canvas-markers.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <!-- Offline Support -->
+    <script src="offline-storage.js"></script>
+    <!-- Advanced Typhoon Map Visualization -->
     <script src="typhoon-map.js"></script>
+    <!-- OpenWeatherMap Map Integration -->
+    <script src="openweathermap-map.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Clear old cache and register Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                // Clear localStorage of old Windy references
+                if (localStorage.getItem('windy_api_key')) {
+                    localStorage.removeItem('windy_api_key');
+                    console.log('[Cache] Removed old Windy API key from localStorage');
+                }
+                
+                // Clear old caches first
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (let name of cacheNames) {
+                        if (name.includes('bayanforecast-v1') || name.includes('windy')) {
+                            await caches.delete(name);
+                            console.log('[Cache] Deleted old cache:', name);
+                        }
+                    }
+                }
+                
+                // Unregister old service workers
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for(let registration of registrations) {
+                    await registration.unregister();
+                    console.log('[Service Worker] Unregistered old service worker');
+                }
+                
+                // Register new service worker
+                try {
+                    const registration = await navigator.serviceWorker.register('service-worker.js');
+                    console.log('[Service Worker] Registered successfully:', registration.scope);
+                    // Force update
+                    registration.update();
+                } catch (error) {
+                    console.error('[Service Worker] Registration failed:', error);
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>
-

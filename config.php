@@ -1,8 +1,69 @@
 <?php
 /**
  * BayanForecast Configuration File
- * Store your API keys and configuration settings here
+ * Loads environment variables from .env file
+ * Store your API keys in .env file (copy from .env.example)
  */
+
+// ===========================
+// Load Environment Variables
+// ===========================
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        return false;
+    }
+    
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Skip comments
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        
+        // Parse key=value pairs
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            
+            // Remove quotes if present (both single and double)
+            $value = trim($value);
+            if ((substr($value, 0, 1) === '"' && substr($value, -1) === '"') ||
+                (substr($value, 0, 1) === "'" && substr($value, -1) === "'")) {
+                $value = substr($value, 1, -1);
+            }
+            $value = trim($value);
+            
+            // (debug logging removed to avoid exposing API key fragments)
+            
+            // Set environment variable if not already set
+            if (!array_key_exists($key, $_ENV) && !array_key_exists($key, $_SERVER)) {
+                $_ENV[$key] = $value;
+                $_SERVER[$key] = $value;
+                putenv("$key=$value");
+            }
+        }
+    }
+    return true;
+}
+
+// Load .env file from project root
+$envPath = __DIR__ . '/.env';
+if (file_exists($envPath)) {
+    loadEnv($envPath);
+} else {
+    // Fallback: try to load from parent directory
+    $envPath = dirname(__DIR__) . '/.env';
+    if (file_exists($envPath)) {
+        loadEnv($envPath);
+    }
+}
+
+// Helper function to get env variable with default
+function getEnvVar($key, $default = null) {
+    $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+    return $value !== false ? $value : $default;
+}
 
 // ===========================
 // API Configuration
@@ -15,9 +76,12 @@
  * - Current weather data
  * - 5-day forecast
  * - Weather alerts (limited)
+ *
+ * Note: Accept legacy alias OPENWEATHERMAP_API_KEY from .env for compatibility.
  */
-$OPENWEATHER_API_KEY = 'YOUR_OPENWEATHER_API_KEY_HERE';
-$OPENWEATHER_API_ENABLED = true;
+// Try primary key name first; fallback to legacy alias if present
+$OPENWEATHER_API_KEY = getEnvVar('OPENWEATHER_API_KEY', getEnvVar('OPENWEATHERMAP_API_KEY', 'YOUR_OPENWEATHER_API_KEY_HERE'));
+$OPENWEATHER_API_ENABLED = getEnvVar('OPENWEATHER_API_ENABLED', 'true') === 'true';
 
 /**
  * NOAA Weather API Configuration
@@ -25,24 +89,24 @@ $OPENWEATHER_API_ENABLED = true;
  * No API key required - Free public API
  * Note: Limited to USA coverage, but good for typhoon/tropical cyclone data
  */
-$NOAA_API_ENABLED = true;
-$NOAA_API_BASE_URL = 'https://api.weather.gov';
+$NOAA_API_ENABLED = getEnvVar('NOAA_API_ENABLED', 'true') === 'true';
+$NOAA_API_BASE_URL = getEnvVar('NOAA_API_BASE_URL', 'https://api.weather.gov');
 
 /**
  * JMA (Japan Meteorological Agency) API Configuration
  * Best for Asian typhoon tracking and weather in Japan/Philippines region
  * No official public API, but we can use their public data feeds
  */
-$JMA_API_ENABLED = true;
-$JMA_API_BASE_URL = 'https://www.data.jma.go.jp';
+$JMA_API_ENABLED = getEnvVar('JMA_API_ENABLED', 'true') === 'true';
+$JMA_API_BASE_URL = getEnvVar('JMA_API_BASE_URL', 'https://www.data.jma.go.jp');
 
 /**
- * Windy API Configuration
- * Get your API key from: https://api.windy.com/point-forecast/docs
- * Provides detailed point forecasts with cloud data, wind patterns, and more
+ * Open-Meteo API Configuration
+ * Free weather forecast API - No API key required
+ * Documentation: https://open-meteo.com/en/docs
+ * Features: Up to 16 days forecast, multiple weather models, hourly/daily data
  */
-$WINDY_API_KEY = 'YOUR_WINDY_API_KEY_HERE';
-$WINDY_API_ENABLED = true;
+$OPENMETEO_API_ENABLED = getEnvVar('OPENMETEO_API_ENABLED', 'true') === 'true';
 
 /**
  * PAGASA API Configuration (if available)
@@ -59,8 +123,8 @@ $PAGASA_API_KEY = '';
 /**
  * Default location settings
  */
-define('DEFAULT_LOCATION', 'Manila');
-define('DEFAULT_COUNTRY', 'PH');
+define('DEFAULT_LOCATION', getEnvVar('DEFAULT_LOCATION', 'Manila'));
+define('DEFAULT_COUNTRY', getEnvVar('DEFAULT_COUNTRY', 'PH'));
 define('DEFAULT_TIMEZONE', 'Asia/Manila');
 
 /**

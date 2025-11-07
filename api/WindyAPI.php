@@ -15,11 +15,23 @@ class WindyAPI {
     
     /**
      * Get point forecast for specific coordinates
-     * @param float $lat Latitude
-     * @param float $lon Longitude
-     * @param string $model Forecast model (gfs, iconEu, arome, etc.)
-     * @param array $parameters Parameters to request
-     * @param array $levels Geopotential levels
+     * 
+     * Sends POST request to: https://api.windy.com/api/point-forecast/v2
+     * Request body format:
+     * {
+     *     "lat": 49.809,
+     *     "lon": 16.787,
+     *     "model": "gfs",
+     *     "parameters": ["temp", "wind", "pressure", ...],
+     *     "levels": ["surface"],
+     *     "key": "your_API_key"
+     * }
+     * 
+     * @param float $lat Latitude (automatically rounded to 2 decimals)
+     * @param float $lon Longitude (automatically rounded to 2 decimals)
+     * @param string $model Forecast model (gfs, iconEu, arome, namConus, etc.)
+     * @param array $parameters Parameters to request (temp, wind, pressure, rh, precip, lclouds, mclouds, hclouds, etc.)
+     * @param array $levels Geopotential levels (surface, 1000h, 850h, 500h, etc.)
      * @return array Forecast data
      */
     public function getPointForecast($lat, $lon, $model = 'gfs', $parameters = null, $levels = ['surface']) {
@@ -28,9 +40,10 @@ class WindyAPI {
             $parameters = ['temp', 'wind', 'pressure', 'rh', 'precip', 'lclouds', 'mclouds', 'hclouds'];
         }
         
+        // Build request body exactly as per Windy API specification
         $requestBody = [
-            'lat' => round($lat, 2),
-            'lon' => round($lon, 2),
+            'lat' => round($lat, 2),  // Rounded to 2 decimals (max error ~1km)
+            'lon' => round($lon, 2),  // Rounded to 2 decimals (max error ~1km)
             'model' => $model,
             'parameters' => $parameters,
             'levels' => $levels,
